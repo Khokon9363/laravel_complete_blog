@@ -34,4 +34,8 @@ Route::middleware(['user.authority'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/posts', 'PostController@posts');
     Route::post('/store/post', 'PostController@store');
+    Route::get('/delete/post/{id}', 'PostController@destroy');
+    Route::post('/update/post/{id}', 'PostController@update');
+
+    Route::post('/store/comment/{id}', 'CommentController@store');
 });

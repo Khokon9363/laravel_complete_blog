@@ -5,7 +5,11 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Operator Dashboard') }}</div>
+                <div class="card-header">
+                <a href="{{ url('/operator/dashboard') }}">{{ __('Operator Dashboard') }}</a>
+                |
+                <a href="{{ url('/posts') }}">{{ __('Posts') }}</a>
+                </div>
 
                 <div class="card-body">
                     @if (session('status'))

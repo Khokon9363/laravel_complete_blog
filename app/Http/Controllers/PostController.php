@@ -11,15 +11,15 @@ class PostController extends Controller
     {
         if (auth()->user()->role === 0) {
             $view = 'user.posts';
-            $posts = Post::with('comments')->orderBy('created_at', 'DESC')->get();
+            $posts = Post::with('comments', 'user')->orderBy('created_at', 'DESC')->get();
 
         }elseif (auth()->user()->role === 1) {
             $view = 'operator.posts';
-            $posts = Post::with('comments')->where('user_id', '!=', 2)->orderBy('created_at', 'DESC')->get();
+            $posts = Post::with('comments', 'user')->orderBy('created_at', 'DESC')->get();
 
         }elseif (auth()->user()->role === 2) {
             $view = 'admin.posts';
-            $posts = Post::with('comments')->where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC')->get();
+            $posts = Post::with('comments', 'user')->orderBy('created_at', 'DESC')->get();
         }
         return view($view, compact('posts'));
     }
@@ -43,5 +43,42 @@ class PostController extends Controller
         $post->save();
 
         return redirect()->back()->with('success', 'Post published successfully');
+    }
+
+    public function destroy($id)
+    {
+        $image = Post::find($id)->image;
+
+        unlink('post_images/'.$image);
+
+        Post::destroy($id);
+
+        return redirect()->back()->with('error', 'Post deleted successfully');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'post'  => 'required|max:500',
+        ]);
+
+        $post = Post::find($id);
+
+        if ($request->hasFile('image')) {
+            
+            unlink('post_images/'.$post->image);
+
+            $image = $request->file('image')->getClientOriginalName();
+            $rename = time().$image;
+            $request->file('image')->move('post_images', $rename);
+
+            $post->image   = $rename;
+        }
+
+        $post->post    = $request->post;
+        $post->status  = intval($request->status);
+        $post->save();
+
+        return redirect()->back()->with('success', 'Post updated successfully');
     }
 }
